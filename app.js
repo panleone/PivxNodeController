@@ -57,7 +57,7 @@ async function GetMnStatus(txid){
         'content-type': 'text/plain;',
         'Authorization': 'Basic ' + encodeBase64('masternode_test:p')
     },
-    body: '{"jsonrpc": "1.0", "id":"curltest", "method": "listmasternodes", "params": ['+String(txid)+'] }'});
+    body: '{"jsonrpc": "1.0", "id":"curltest", "method": "listmasternodes", "params": [786838cb44d40ba5c4d97ad242a485868ea60cb4def40b1fe400cc61639d1471] }'});
     return output.text()
   }catch(error){
     if (error.name === 'AbortError') {

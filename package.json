@@ -1,0 +1,23 @@
+{
+  "name": "pivxnodecontroller",
+  "version": "1.0.0",
+  "description": "A http server used to control a pivx node remotely",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shangaman/PivxNodeController.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Shangaman/PivxNodeController/issues"
+  },
+  "homepage": "https://github.com/Shangaman/PivxNodeController#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.1"
+  }
+}

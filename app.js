@@ -19,9 +19,34 @@ fetch('http://127.0.0.1:51473/', {
 }).then(res => res.text())
 .then(text => console.log(text));
 */
+
+(async () => {
+	try {
+		await fetch(url, {signal});
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.log('request was aborted');
+		}
+	}
+})();
+
 async function getgoogle(){
-  let output= await fetch('https://google.com')
-  return await output.text()
+  try{
+    let output= await fetch('http://127.0.0.1:51473/', {
+    method: 'POST',
+    headers: {
+        'content-type': 'text/plain;',
+        'Authorization': 'Basic ' + encodeBase64('masternode_test:p')
+    },
+    body: '{"jsonrpc": "1.0", "id":"curltest", "method": "getbalance", "params": [] }'});
+    return output.text()
+  }catch(error){
+    if (error.name === 'AbortError') {
+			return "request was aborted'";
+		}else{
+      return "non u sac";
+    }
+  }
 }
 
 

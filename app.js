@@ -3,8 +3,11 @@ dotenv.config();
 checkEnv();
 import express from "express";
 import fetch from "node-fetch";
+import cors from "cors";
+
 
 const app = express()
+app.use(cors());
 const port = process.env["PORT"] || 3000;
 const allowedRpcs = process.env["ALLOWED_RPCS"].split(",");
 
@@ -38,7 +41,7 @@ async function makeRpc(name, ...params){
 	    return { status: imATeapot, response: obj.error.message };
 	} else {
 	    const ok = 200;
-	    return { status: ok, response: obj.result };
+	    return { status: ok, response: JSON.stringify(obj.result) };
 	}
     }catch(error){
 	if (error.errno === "ECONNREFUSED") {

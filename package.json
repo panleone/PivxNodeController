@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Shangaman/PivxNodeController#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "node-fetch": "^3.2.10"

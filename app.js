@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 
 const app = express()
 const port = 3000
+const allowedRpcs = ["getBalance", "help"];
 
 export const encodeBase64 = (data) => {
     return Buffer.from(data).toString('base64');
@@ -30,61 +31,56 @@ fetch('http://127.0.0.1:51473/', {
 	}
 })();
 
-async function test_balance(){
-  try{
-    let output= await fetch('http://127.0.0.1:51473/', {
-    method: 'POST',
-    headers: {
-        'content-type': 'text/plain;',
-        'Authorization': 'Basic ' + encodeBase64('masternode_test:p')
-    },
-    body: '{"jsonrpc": "1.0", "id":"curltest", "method": "getbalance", "params": [] }'});
-    return output.text()
-  }catch(error){
-    if (error.name === 'AbortError') {
-			return "request was aborted'";
-		}else{
-      return "non u sac";
+async function makeRpc(name, ...params){
+    try{
+	const output = await fetch('http://127.0.0.1:51473/', {
+	    method: 'POST',
+	    headers: {
+		'content-type': 'text/plain;',
+		'Authorization': 'Basic ' + encodeBase64('masternode_test:p')
+	    },
+	    body: JSON.stringify({
+		jsonrpc: "1.0",
+		id: "pivxRerouter",
+		method: name,
+		params,
+	    }),
+	});
+	const text = await output.text();
+	console.log(text);
+	return { status: 200, response: text };
+    }catch(error){
+	if (error.errno === "ECONNREFUSED") {
+	    return { status: 503, response: "PIVX node was not responsive." };
+	}
+	if (error.name === 'AbortError') {
+	    return "brequbest was aborted'";
+	}else{
+	    return "non u sac";
+	}
     }
-  }
 }
 
-async function GetMnStatus(txid){
-  try{
-    let output= await fetch('http://127.0.0.1:51473/', {
-    method: 'POST',
-    headers: {
-        'content-type': 'text/plain;',
-        'Authorization': 'Basic ' + encodeBase64('masternode_test:p')
-    },
-    body: '{"jsonrpc": "1.0", "id":"curltest", "method": "listmasternodes", "params": [786838cb44d40ba5c4d97ad242a485868ea60cb4def40b1fe400cc61639d1471] }'});
-    return output.text()
-  }catch(error){
-    if (error.name === 'AbortError') {
-			return "request was aborted'";
-		}else{
-      return "non u sac";
+//ce9efce67bf55fed12a162ab3c02e5b58e8f69ceac51524ae067ab06ad558a7f
+
+
+app.get('/:rpc', async function(req, res) {
+    try {
+	if (allowedRpcs.includes(req.params["rpc"])) {
+	    console.log(req.query);
+	    const params = [];
+	    const { status, response } = await makeRpc(req.params["rpc"], ...params);
+	    res.status(status).send(response);
+	} else {
+	    const forbiddenStatus = 403;
+	    res.status(forbiddenStatus).send("Invalid RPC");
+	}
+    } catch (e) {
+	const internalError = 500;
+	res.status(internalError).send("Internal server error");
     }
-  }
-}
-
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-
- app.get('/getbalance', async (req, res) => {
-  res.send(await test_balance());
-  })
-  //ce9efce67bf55fed12a162ab3c02e5b58e8f69ceac51524ae067ab06ad558a7f
-
-
-  app.get('/mnstatus', async function(req, res) {
-    //res.send('txid ' + req.query.txid);    
-    res.send(await GetMnStatus(req.query.txid))
-  });
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`)
 })

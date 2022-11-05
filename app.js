@@ -73,7 +73,7 @@ app.get('/:rpc', async function(req, res) {
 		  });
 	    
 	    const { status, response } = await makeRpc(req.params["rpc"], ...params);
-	    res.status(status).send(JSON.parse(response) + "");
+	    res.status(status).send(response + "");
 	} else {
 	    const forbiddenStatus = 403;
 	    res.status(forbiddenStatus).send("Invalid RPC");

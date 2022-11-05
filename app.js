@@ -63,9 +63,7 @@ app.get('/:rpc', async function(req, res) {
 	if (allowedRpcs.includes(req.params["rpc"])) {
 
 	    const params = (req.query.params ? req.query.params.split(",") : [])
-		  .map(v=>{
-		      let n = parseInt(v); return n ? n : v
-		  });
+		  .map(v=>isNaN(v) ? v : parseInt(v));
 	    
 	    const { status, response } = await makeRpc(req.params["rpc"], ...params);
 	    res.status(status).send(response + "");

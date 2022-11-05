@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 
 const app = express()
 const port = 3000
-const allowedRpcs = ["getBalance", "help"];
+const allowedRpcs = ["getbalance", "help"];
 
 export const encodeBase64 = (data) => {
     return Buffer.from(data).toString('base64');

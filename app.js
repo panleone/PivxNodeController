@@ -68,8 +68,11 @@ app.get('/:rpc', async function(req, res) {
     try {
 	if (allowedRpcs.includes(req.params["rpc"])) {
 
-	    const params = req.query.params ? req.query.params.split(",") : [];
-	    console.log(params);
+	    const params = (req.query.params ? req.query.params.split(",") : [])
+		  .map(v=>{
+		      let n = parseInt(v); return n ? n : v
+		  });
+	    
 	    const { status, response } = await makeRpc(req.params["rpc"], ...params);
 	    res.status(status).send(response);
 	} else {

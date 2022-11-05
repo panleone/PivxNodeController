@@ -49,7 +49,7 @@ async function makeRpc(name, ...params){
 	const obj = await output.json();
 	if(obj.error) {
 	    const imATeapot = 418;
-	    return { status: imATeapot, response: obj.error };
+	    return { status: imATeapot, response: obj.error.message };
 	} else {
 	    const ok = 200;
 	    return { status: ok, response: obj.result };

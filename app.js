@@ -47,7 +47,13 @@ async function makeRpc(name, ...params){
 	    }),
 	});
 	const obj = await output.json();
-	return { status: 200, response: obj.result };
+	if(obj.error) {
+	    const imATeapot = 418;
+	    return { status: imATeapot, response: obj.error };
+	} else {
+	    const ok = 200;
+	    return { status: ok, response: obj.result };
+	}
     }catch(error){
 	if (error.errno === "ECONNREFUSED") {
 	    return { status: 503, response: "PIVX node was not responsive." };

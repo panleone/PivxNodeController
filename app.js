@@ -1,35 +1,21 @@
+import * as dotenv from "dotenv";
+dotenv.config();
+checkEnv();
 import express from "express";
 import fetch from "node-fetch";
 
 const app = express()
-const port = 3000
-const allowedRpcs = ["getbalance", "help"];
+const port = process.env["PORT"] || 3000;
+const allowedRpcs = process.env["ALLOWED_RPCS"].split(",");
 
-export const encodeBase64 = (data) => {
-    return Buffer.from(data).toString('base64');
+function checkEnv() {
+    if(!process.env["ALLOWED_RPCS"]) throw new Error("Environment variable ALLOWED_RPCS was not set");
+    if(!process.env["RPC_CREDENTIALS"]) throw new Error("Environment variable RPC_CREDENTIALS was not set");
 }
 
-/*
-fetch('http://127.0.0.1:51473/', {
-    method: 'POST',
-    headers: {
-        'content-type': 'text/plain;',
-        'Authorization': 'Basic ' + encodeBase64btoa('masternode_test:p')
-    },
-    body: '{"jsonrpc": "1.0", "id":"curltest", "method": "getbalance", "params": [] }'
-}).then(res => res.text())
-.then(text => console.log(text));
-*/
-
-(async () => {
-	try {
-		await fetch(url, {signal});
-	} catch (error) {
-		if (error.name === 'AbortError') {
-			console.log('request was aborted');
-		}
-	}
-})();
+const encodeBase64 = (data) => {
+    return Buffer.from(data).toString('base64');
+}
 
 async function makeRpc(name, ...params){
     try{
@@ -37,7 +23,7 @@ async function makeRpc(name, ...params){
 	    method: 'POST',
 	    headers: {
 		'content-type': 'text/plain;',
-		'Authorization': 'Basic ' + encodeBase64('masternode_test:p')
+		'Authorization': 'Basic ' + encodeBase64(process.env["RPC_CREDENTIALS"])
 	    },
 	    body: JSON.stringify({
 		jsonrpc: "1.0",

@@ -45,7 +45,7 @@ async function makeRpc(name, ...params){
 	}
     }catch(error){
 	if (error.errno === "ECONNREFUSED") {
-	    return { status: 503, response: "PIVX node was not responsive." };
+	    return { status: 503, response: JSON.stringify({response: "PIVX node was not responsive."})};
 	}
 	if (error.name === 'AbortError') {
 	    return "brequbest was aborted'";

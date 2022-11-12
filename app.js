@@ -43,9 +43,9 @@ async function makeRpc(name, ...params){
 	    const ok = 200;
 	    return { status: ok, response: JSON.stringify(obj.result) };
 	}
-    }catch(error){
+    } catch(error) {
 	if (error.errno === "ECONNREFUSED") {
-	    return { status: 503, response: JSON.stringify({response: "PIVX node was not responsive."})};
+	    return { status: 503, response: "PIVX node was not responsive."};
 	}
 	if (error.name === 'AbortError') {
 	    return "brequbest was aborted'";
@@ -63,8 +63,9 @@ app.get('/:rpc', async function(req, res) {
 	if (allowedRpcs.includes(req.params["rpc"])) {
 
 	    const params = (req.query.params ? req.query.params.split(",") : [])
-		  .map(v=>isNaN(v) ? v : parseInt(v));
-	    
+		  .map(v=>isNaN(v) ? v : parseInt(v))
+        	  .map(v=>v === "true" ? true : v)
+		  .map(v=>v === "false" ? false : v);
 	    const { status, response } = await makeRpc(req.params["rpc"], ...params);
 	    res.status(status).send(response + "");
 	} else {

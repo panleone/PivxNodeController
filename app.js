@@ -9,6 +9,8 @@ import cors from "cors";
 const app = express()
 app.use(cors());
 const port = process.env["PORT"] || 3000;
+const rpcPort = process.env["RPC_PORT"] || 51473;
+const testnetRpcPort = process.env["TESTNET_RPC_PORT"];
 const allowedRpcs = process.env["ALLOWED_RPCS"].split(",");
 
 function checkEnv() {
@@ -20,9 +22,9 @@ const encodeBase64 = (data) => {
     return Buffer.from(data).toString('base64');
 }
 
-async function makeRpc(name, ...params){
+async function makeRpc(isTestnet, name, ...params){
     try{
-	const output = await fetch('http://127.0.0.1:51473/', {
+	const output = await fetch(`http://127.0.0.1:${isTestnet ? testnetRpcPort : rpcPort}/`, {
 	    method: 'POST',
 	    headers: {
 		'content-type': 'text/plain;',
@@ -55,18 +57,19 @@ async function makeRpc(name, ...params){
     }
 }
 
-//ce9efce67bf55fed12a162ab3c02e5b58e8f69ceac51524ae067ab06ad558a7f
-
-
-app.get('/:rpc', async function(req, res) {
-    try {
-	if (allowedRpcs.includes(req.params["rpc"])) {
-
-	    const params = (req.query.params ? req.query.params.split(",") : [])
+function parseParams(params) {
+    return (params ? params.split(",") : [])
 		  .map(v=>isNaN(v) ? v : parseInt(v))
         	  .map(v=>v === "true" ? true : v)
 		  .map(v=>v === "false" ? false : v);
-	    const { status, response } = await makeRpc(req.params["rpc"], ...params);
+}
+
+app.get('mainnet/:rpc', async function(req, res) {
+    try {
+	if (allowedRpcs.includes(req.params["rpc"])) {
+
+	    const params = parseParams(req.query.params);
+	    const { status, response } = await makeRpc(false, req.params["rpc"], ...params);
 	    res.status(status).send(response + "");
 	} else {
 	    const forbiddenStatus = 403;
@@ -77,6 +80,24 @@ app.get('/:rpc', async function(req, res) {
 	res.status(internalError).send("Internal server error");
     }
 });
+if(testnetRpcPort) {
+    app.get('testnet/:rpc', async function(req, res) {
+	try {
+	    if (allowedRpcs.includes(req.params["rpc"])) {
+		
+		const params = parseParams(req.query.params);
+		const { status, response } = await makeRpc(true, req.params["rpc"], ...params);
+		res.status(status).send(response + "");
+	    } else {
+		const forbiddenStatus = 403;
+		res.status(forbiddenStatus).send("Invalid RPC");
+	    }
+	} catch (e) {
+	    const internalError = 500;
+	    res.status(internalError).send("Internal server error");
+	}
+    });
+}
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)

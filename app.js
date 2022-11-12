@@ -100,5 +100,5 @@ if(testnetRpcPort) {
 }
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Pivx node controller listening on port ${port}`)
 })

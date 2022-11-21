@@ -37,6 +37,7 @@ async function makeRpc(isTestnet, name, ...params){
 		params,
 	    }),
 	});
+
 	const obj = await output.json();
 	if(obj.error) {
 	    const imATeapot = 418;
@@ -49,6 +50,7 @@ async function makeRpc(isTestnet, name, ...params){
 	if (error.errno === "ECONNREFUSED") {
 	    return { status: 503, response: "PIVX node was not responsive."};
 	}
+	console.error(error);
 	if (error.name === 'AbortError') {
 	    return "brequbest was aborted'";
 	}else{
@@ -64,7 +66,7 @@ function parseParams(params) {
 		  .map(v=>v === "false" ? false : v);
 }
 
-app.get('mainnet/:rpc', async function(req, res) {
+app.get('/mainnet/:rpc', async function(req, res) {
     try {
 	if (allowedRpcs.includes(req.params["rpc"])) {
 
@@ -76,12 +78,13 @@ app.get('mainnet/:rpc', async function(req, res) {
 	    res.status(forbiddenStatus).send("Invalid RPC");
 	}
     } catch (e) {
+	console.error(e);
 	const internalError = 500;
 	res.status(internalError).send("Internal server error");
     }
 });
 if(testnetRpcPort) {
-    app.get('testnet/:rpc', async function(req, res) {
+    app.get('/testnet/:rpc', async function(req, res) {
 	try {
 	    if (allowedRpcs.includes(req.params["rpc"])) {
 		

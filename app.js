@@ -4,14 +4,29 @@ checkEnv();
 import express from "express";
 import fetch from "node-fetch";
 import cors from "cors";
+import http from "http";
+import https from "https";
+import fs from "fs";
 
 
-const app = express()
+const app = express();
 app.use(cors());
 const port = process.env["PORT"] || 3000;
 const rpcPort = process.env["RPC_PORT"] || 51473;
 const testnetRpcPort = process.env["TESTNET_RPC_PORT"];
 const allowedRpcs = process.env["ALLOWED_RPCS"].split(",");
+const server = setupServer();
+
+function setupServer() {
+    const certificatePath = process.env["HTTPS_CERTIFICATE_PATH"];
+    const keyPath = process.env["HTTPS_KEY_PATH"];
+    if (!certificatePath || !keyPath) {
+	return http.createServer(app);
+    }
+    const cert = fs.readFileSync(certificatePath);
+    const key = fs.readFileSync(keyPath);
+    return https.createServer({cert, key}, app);
+}
 
 function checkEnv() {
     if(!process.env["ALLOWED_RPCS"]) throw new Error("Environment variable ALLOWED_RPCS was not set");
@@ -66,7 +81,7 @@ function parseParams(params) {
 		  .map(v=>v === "false" ? false : v);
 }
 
-app.get('/mainnet/:rpc', async function(req, res) {
+server.get('/mainnet/:rpc', async function(req, res) {
     try {
 	if (allowedRpcs.includes(req.params["rpc"])) {
 
@@ -84,7 +99,7 @@ app.get('/mainnet/:rpc', async function(req, res) {
     }
 });
 if(testnetRpcPort) {
-    app.get('/testnet/:rpc', async function(req, res) {
+    server.get('/testnet/:rpc', async function(req, res) {
 	try {
 	    if (allowedRpcs.includes(req.params["rpc"])) {
 		
@@ -102,6 +117,6 @@ if(testnetRpcPort) {
     });
 }
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Pivx node controller listening on port ${port}`)
 })

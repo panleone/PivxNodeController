@@ -15,9 +15,8 @@ const port = process.env["PORT"] || 3000;
 const rpcPort = process.env["RPC_PORT"] || 51473;
 const testnetRpcPort = process.env["TESTNET_RPC_PORT"];
 const allowedRpcs = process.env["ALLOWED_RPCS"].split(",");
-const server = setupServer();
 
-function setupServer() {
+function setupServer(app) {
     const certificatePath = process.env["HTTPS_CERTIFICATE_PATH"];
     const keyPath = process.env["HTTPS_KEY_PATH"];
     if (!certificatePath || !keyPath) {
@@ -81,7 +80,7 @@ function parseParams(params) {
 		  .map(v=>v === "false" ? false : v);
 }
 
-server.get('/mainnet/:rpc', async function(req, res) {
+app.get('/mainnet/:rpc', async function(req, res) {
     try {
 	if (allowedRpcs.includes(req.params["rpc"])) {
 
@@ -95,11 +94,11 @@ server.get('/mainnet/:rpc', async function(req, res) {
     } catch (e) {
 	console.error(e);
 	const internalError = 500;
-	res.status(internalError).send("Internal server error");
+	res.status(internalError).send("Internal app error");
     }
 });
 if(testnetRpcPort) {
-    server.get('/testnet/:rpc', async function(req, res) {
+    app.get('/testnet/:rpc', async function(req, res) {
 	try {
 	    if (allowedRpcs.includes(req.params["rpc"])) {
 		
@@ -112,10 +111,12 @@ if(testnetRpcPort) {
 	    }
 	} catch (e) {
 	    const internalError = 500;
-	    res.status(internalError).send("Internal server error");
+	    res.status(internalError).send("Internal app error");
 	}
     });
 }
+
+const server = setupServer(app);
 
 server.listen(port, () => {
     console.log(`Pivx node controller listening on port ${port}`)
